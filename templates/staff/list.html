@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>城市管理局人员信息管理</title>
+</head>
+<body>
+<a href="{% url 'staff_add' %}">新增人员</a>
+<table border="1">
+    <tr>
+        <th>姓名</th>
+        <th>性别</th>
+        <th>出生日期</th>
+        <th>身份证号</th>
+        <th>人员类型</th>
+        <th>在职状态</th>
+        <th>所属科室</th>
+    </tr>
+    {% for staff in staff_list %}
+        <tr>
+            <td>{{ staff.name }}</td>
+            <td>{{ staff.get_gender_display }}</td>
+            <td>{{ staff.birth }}</td>
+            <td>{{ staff.id_number }}</td>
+            <td>{{ staff.staff_type }}</td>
+            <td>{{ staff.work_status }}</td>
+            <td>{{ staff.work_area }}</td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td colspan="7">暂无员工数据</td>
+        </tr>
+    {% endfor %}
+
+
+</table>
+
+</body>
+</html>
