@@ -5,7 +5,23 @@
     <title>城市管理局人员信息管理</title>
 </head>
 <body>
-<a href="{% url 'staff_add' %}">新增人员</a>
+<a href="{% url 'staff_add' %}">新增人员</a><br>
+<div class="search-box">
+        <form method="get">
+            姓名：
+            <label>
+                <input type="text" name="name" placeholder="输入姓名模糊搜索">
+                &nbsp;&nbsp;
+            </label>
+            <label>
+                科室：
+                <input type="text" name="work_area" placeholder="输入科室模糊搜索">
+            </label>
+            <button type="submit">查询</button>
+            <button type="button" onclick="location.href='{% url 'staff_list' %}'" style="margin-left:8px;">重置</button>
+        </form>
+    </div>
+
 <table border="1">
     <tr>
         <th>姓名</th>
@@ -15,6 +31,7 @@
         <th>人员类型</th>
         <th>在职状态</th>
         <th>所属科室</th>
+        <th>执行操作</th>
     </tr>
     {% for staff in staff_list %}
         <tr>
@@ -25,13 +42,22 @@
             <td>{{ staff.staff_type }}</td>
             <td>{{ staff.work_status }}</td>
             <td>{{ staff.work_area }}</td>
+        <td>
+            <form action="{% url 'staff_del' staff.pk %}" method="post">
+            {% csrf_token %}
+            <button type="submit" onclick="return confirm('确认删除该用户？')">删除</button>
+            </form>
+            <form action="{% url 'staff_edit' staff.pk %}" method="get">
+            {% csrf_token %}
+            <button type="submit" >编辑</button>
+            </form>
+        </td>
         </tr>
     {% empty %}
         <tr>
             <td colspan="7">暂无员工数据</td>
         </tr>
     {% endfor %}
-
 
 </table>
 
