@@ -9,12 +9,19 @@
 <div>
     <form action="{% url 'login_view' %}" method="post">
         {% csrf_token %}
-        账号<input type="text" name="username" placeholder="请输入您的用户名"><br>
-        密码<input type="password" name="password" placeholder="请输入密码"><br>
-        <input type="submit" value="登录">
-        {% if msg %}
-            <p style="color:red">{{ msg }}</p>
+        {% if msg%}
+            <P>{{ msg }}</P>
         {% endif %}
+        <label>
+            账号
+            <input type="text" name="username" placeholder="请输入您的用户名">
+        </label><br>
+        <label>
+            密码
+            <input type="password" name="password" placeholder="请输入密码">
+        </label><br>
+        <input type="submit" value="登录">
+
     </form>
 </div>
 

@@ -5,7 +5,12 @@
     <title>城市管理局人员信息管理</title>
 </head>
 <body>
-<a href="{% url 'staff_add' %}">新增人员</a><br>
+<a href="{% url 'staff_add' %}">新增人员</a>
+<form action="{% url 'logout_view' %}" method="post">
+    {% csrf_token %}
+    <button type="submit" >退出登录</button>
+</form>
+<br>
 <div class="search-box">
         <form method="get">
             姓名：
@@ -37,7 +42,7 @@
         <tr>
             <td>{{ staff.name }}</td>
             <td>{{ staff.get_gender_display }}</td>
-            <td>{{ staff.birth }}</td>
+            <td>{{ staff.birth|date:'Y-m-d' }}</td>
             <td>{{ staff.id_number }}</td>
             <td>{{ staff.staff_type }}</td>
             <td>{{ staff.work_status }}</td>
