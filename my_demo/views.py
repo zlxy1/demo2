@@ -1,7 +1,8 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from . import models
 from .models import Staff, work_status_choices, area_choice
-
+@login_required
 def staff_add(request):
     if request.method == 'GET':
         ctx = {'gender_list': models.gender_choice,
@@ -20,14 +21,14 @@ def staff_add(request):
                              work_area=request.POST.get('work_area'))
         return redirect('staff_list')
 
-
+@login_required
 def staff_del(request, pk):
     staff_del = get_object_or_404(Staff, pk=pk)
     if request.method == "POST":
         staff_del.delete()
         return redirect('staff_list')
 
-
+@login_required
 def staff_edit(request, pk):
     staff = get_object_or_404(Staff, pk=pk)
     ctx1 = {'gender_list': models.gender_choice,
@@ -48,7 +49,7 @@ def staff_edit(request, pk):
         staff.save()
         return redirect('staff_list')
 
-
+@login_required
 def staff_list(request):
     qs=Staff.objects.all()
     serach_name=request.GET.get('name','')

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>账户登录</title>
+</head>
+<body>
+<h2>用户信息登录</h2>
+<div>
+    <form action="{% url 'login_view' %}" method="post">
+        {% csrf_token %}
+        账号<input type="text" name="username" placeholder="请输入您的用户名"><br>
+        密码<input type="password" name="password" placeholder="请输入密码"><br>
+        <input type="submit" value="登录">
+        {% if msg %}
+            <p style="color:red">{{ msg }}</p>
+        {% endif %}
+    </form>
+</div>
+
+</body>
+</html>
