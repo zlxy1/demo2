@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>用户注册</title>
+    <style>
+        body {
+            width: 400px;
+            margin: 80px auto;
+        }
+        .item {
+            margin: 15px 0;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h2 align="center">新用户注册</h2>
+
+    <!-- 错误提示信息 -->
+    {% if msg %}
+        <p class="error" align="center">{{ msg }}</p>
+    {% endif %}
+
+    <!-- 表单提交，post方式必须加csrf_token -->
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="item">
+            <label>用户名</label>
+            <input type="text" name="username" placeholder="请输入用户名">
+        </div>
+
+        <div class="item">
+            <label>设置密码</label>
+            <input type="password" name="password1" placeholder="请输入密码">
+        </div>
+
+        <div class="item">
+            <label>确认密码</label>
+            <input type="password" name="password2" placeholder="再次输入密码">
+        </div>
+
+        <div class="item">
+            <input type="submit" value="立即注册">
+        </div>
+    </form>
+
+    <p align="center">已有账号？
+        <a href="{% url 'login_view' %}">前往登录</a>
+    </p>
+</body>
+</html>
