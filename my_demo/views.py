@@ -40,6 +40,7 @@ def staff_edit(request, pk):
     if request.method == 'GET':
         return render(request, 'staff/edit.html', ctx1)
     else:
+        staff.name=request.POST.get('name')
         staff.gender = request.POST.get('gender')
         staff.birth = request.POST.get('birth')
         staff.id_number = request.POST.get('id_number')
