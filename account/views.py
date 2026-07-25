@@ -1,6 +1,9 @@
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.hashers import check_password
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
+
 # Create your views here.
 def login_view(request):
     if request.user.is_authenticated:
@@ -55,6 +58,39 @@ def register(request):
     # GET请求 或 校验失败，返回注册页面并携带提示文字
     return render(request, 'account/register.html', {'msg': msg})
 
+@login_required
+def userinfo(request):
+        return render(request,'account/userinfo.html')
+
+
+@login_required
+def change_pwd(request):
+    msg = ''
+    if request.method == 'POST':
+        old_pwd = request.POST.get('old_pwd','')
+        new_pwd1 = request.POST.get('new_pwd1','')
+        new_pwd2 = request.POST.get('new_pwd2','')
+
+        # 新增：判断输入框不能为空
+        if not old_pwd or not new_pwd1 or not new_pwd2:
+            msg = '所有输入框不能为空'
+        elif not check_password(old_pwd, request.user.password):
+            msg = '原密码输入错误'
+        elif new_pwd1 != new_pwd2:
+            msg = '两次新密码输入不一致'
+        elif len(new_pwd1) <= 6:
+            msg = '密码必须大于6位'
+        else:
+            # 修改密码并加密存储
+            user = request.user
+            user.set_password(new_pwd1)
+            user.save()
+            # 更新会话，无需重新登录
+            update_session_auth_hash(request, user)
+            msg = '密码修改成功！'
+
+    # 必须把msg放到上下文字典传给html页面
+    return render(request, 'account/change_pwd.html', {'msg': msg})
 
 
 

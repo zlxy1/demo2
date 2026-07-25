@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>个人中心</title>
+    <style>
+        body{width:450px;margin:80px auto;}
+        .box{line-height: 2.5;font-size:16px;}
+        a{text-decoration: none;color: blue;}
+    </style>
+</head>
+<body>
+    <h2 align="center">个人信息</h2>
+    <div class="box">
+        <p>用户名：{{ user.username }}</p>
+        <p>账号类型：
+            {% if user.is_superuser %}
+                超级管理员
+            {% else %}
+                普通注册用户
+            {% endif %}
+        </p>
+    </div>
+
+    <p><a href="{% url 'change_pwd' %}">前往修改密码</a></p>
+    <p><a href="{% url 'staff_list' %}">返回员工列表首页</a></p>
+</body>
+</html>

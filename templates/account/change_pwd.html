@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>修改密码</title>
+    <style>
+        body{width:420px;margin:80px auto;}
+        .item{margin:15px 0;}
+        input{width:100%;padding:8px;box-sizing: border-box;}
+        .red{color:red; text-align:center;}
+        .green{color:green; text-align:center;}
+    </style>
+</head>
+<body>
+    <h2 align="center">修改登录密码</h2>
+
+    {% if msg %}
+        {% if msg == "密码修改成功！" %}
+            <p class="green">{{ msg }}</p>
+        {% else %}
+            <p class="red">{{ msg }}</p>
+        {% endif %}
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="item">
+            <label>原密码</label>
+            <input type="password" name="old_pwd" required>
+        </div>
+        <div class="item">
+            <label>新密码</label>
+            <input type="password" name="new_pwd1" required>
+        </div>
+        <div class="item">
+            <label>确认新密码</label>
+            <input type="password" name="new_pwd2" required>
+        </div>
+        <div class="item">
+            <input type="submit" value="确认修改">
+        </div>
+    </form>
+
+    <p align="center"><a href="{% url 'userinfo' %}">返回个人中心</a></p>
+</body>
+</html>

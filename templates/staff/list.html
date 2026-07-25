@@ -3,14 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <title>城市管理局人员信息管理</title>
+    <style>
+        /* 简单微调间距，按钮链接排布好看一点 */
+        a, button {
+            margin-right: 12px;
+            font-size: 14px;
+        }
+    </style>
 </head>
 <body>
+<!-- 顶部导航区：新增人员 + 个人中心 + 退出登录 -->
 <a href="{% url 'staff_add' %}">新增人员</a>
-<form action="{% url 'logout_view' %}" method="post">
+<a href="{% url 'userinfo' %}">个人中心</a>
+
+<form action="{% url 'logout_view' %}" method="post" style="display: inline-block;">
     {% csrf_token %}
     <button type="submit" >退出登录</button>
 </form>
 <br>
+
 <div class="search-box">
         <form method="get">
             姓名：
@@ -48,11 +59,11 @@
             <td>{{ staff.work_status }}</td>
             <td>{{ staff.work_area }}</td>
         <td>
-            <form action="{% url 'staff_del' staff.pk %}" method="post">
+            <form action="{% url 'staff_del' staff.pk %}" method="post" style="display: inline-block;">
             {% csrf_token %}
             <button type="submit" onclick="return confirm('确认删除该用户？')">删除</button>
             </form>
-            <form action="{% url 'staff_edit' staff.pk %}" method="get">
+            <form action="{% url 'staff_edit' staff.pk %}" method="get" style="display: inline-block;">
             {% csrf_token %}
             <button type="submit" >编辑</button>
             </form>
@@ -60,7 +71,7 @@
         </tr>
     {% empty %}
         <tr>
-            <td colspan="7">暂无员工数据</td>
+            <td colspan="8">暂无员工数据</td>
         </tr>
     {% endfor %}
 
