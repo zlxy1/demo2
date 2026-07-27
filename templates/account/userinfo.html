@@ -1,37 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'layout.html' %}
 
-</body>
-</html><!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <title>个人中心</title>
-    <style>
-        body{width:450px;margin:80px auto;}
-        .box{line-height: 2.5;font-size:16px;}
-        a{text-decoration: none;color: blue;}
-    </style>
-</head>
-<body>
-    <h2 align="center">个人信息</h2>
-    <div class="box">
-        <p>用户名：{{ user.username }}</p>
-        <p>账号类型：
-            {% if user.is_superuser %}
-                超级管理员
-            {% else %}
-                普通注册用户
-            {% endif %}
-        </p>
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card p-4 mt-3">
+            <h4 class="text-center mb-4">个人信息</h4>
+
+            <div class="box py-2 fs-5">
+                <p class="mb-3">用户名：{{ user.username }}</p>
+                <p class="mb-3">账号类型：
+                    {% if user.is_superuser %}
+                        超级管理员
+                    {% else %}
+                        普通注册用户
+                    {% endif %}
+                </p>
+            </div>
+
+            <hr>
+
+            <div class="mt-3 d-grid gap-2">
+                <a href="{% url 'change_pwd' %}" class="btn btn-outline-primary">前往修改密码</a>
+                <a href="{% url 'staff_list' %}" class="btn btn-primary">返回员工列表首页</a>
+            </div>
+        </div>
     </div>
-
-    <p><a href="{% url 'change_pwd' %}">前往修改密码</a></p>
-    <p><a href="{% url 'staff_list' %}">返回员工列表首页</a></p>
-</body>
-</html>
+</div>
+{% endblock %}

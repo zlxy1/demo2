@@ -1,94 +1,79 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>添加人员</title>
-</head>
-<body>
-<h3>添加人员信息</h3>
-<form action="" method="post">
-    {% csrf_token %}
-    <div>
-        <label>姓名：</label>
-        <label>
-            <input type="text" name="name" required>
-        </label>
-    </div>
-    <br>
+{% extends 'layout.html' %}
 
-    <div>
-        <label>性别：</label>
-        <label>
-            <select name="gender" required>
+{% block content %}
+<div class="card p-4">
+    <h4 class="mb-4">添加人员信息</h4>
+
+    <form action="" method="post">
+        {% csrf_token %}
+
+        <!-- 姓名 -->
+        <div class="mb-3">
+            <label class="form-label">姓名</label>
+            <input type="text" name="name" class="form-control" required>
+        </div>
+
+        <!-- 性别 -->
+        <div class="mb-3">
+            <label class="form-label">性别</label>
+            <select name="gender" class="form-select" required>
                 <option value="">请选择性别</option>
-                <!-- 遍历后端传来的性别列表 -->
                 {% for key, show_text in gender_list %}
                     <option value="{{ key }}">{{ show_text }}</option>
                 {% endfor %}
             </select>
-        </label>
-    </div>
-    <br>
+        </div>
 
-    <div>
-        <label>出生日期：</label>
-        <label>
-            <input type="date" name="birth" required>
-        </label>
-    </div>
-    <br>
+        <!-- 出生日期 -->
+        <div class="mb-3">
+            <label class="form-label">出生日期</label>
+            <input type="date" name="birth" class="form-control" required>
+        </div>
 
-    <div>
-        <label>身份证号：</label>
-        <label>
-            <input type="text" name="id_number" maxlength="18" required>
-        </label>
-    </div>
-    <br>
+        <!-- 身份证号 -->
+        <div class="mb-3">
+            <label class="form-label">身份证号</label>
+            <input type="text" name="id_number" maxlength="18" class="form-control" required>
+        </div>
 
-    <div>
-        <label>人员类型：</label>
-        <label>
-            <select name="staff_type" required>
+        <!-- 人员类型 -->
+        <div class="mb-3">
+            <label class="form-label">人员类型</label>
+            <select name="staff_type" class="form-select" required>
                 <option value="">请选择人员类型</option>
                 {% for key, show_text in staff_type_list %}
                     <option value="{{ key }}">{{ show_text }}</option>
                 {% endfor %}
             </select>
-        </label>
-    </div>
-    <br>
+        </div>
 
-    <div>
-        <label>在职状态：</label>
-        <label>
-            <select name="work_status" required>
+        <!-- 在职状态 -->
+        <div class="mb-3">
+            <label class="form-label">在职状态</label>
+            <select name="work_status" class="form-select" required>
                 <option value="">请选择在职状态</option>
                 {% for key, show_text in work_status_list %}
                     <option value="{{ key }}">{{ show_text }}</option>
                 {% endfor %}
             </select>
-        </label>
-    </div>
-    <br>
+        </div>
 
-    <div>
-        <label>所属科室：</label>
-        <label>
-            <select name="work_area" required>
+        <!-- 所属科室 -->
+        <div class="mb-3">
+            <label class="form-label">所属科室</label>
+            <select name="work_area" class="form-select" required>
                 <option value="">请选择科室</option>
                 {% for key, show_text in area_choice_list %}
                     <option value="{{ key }}">{{ show_text }}</option>
                 {% endfor %}
             </select>
-        </label>
-    </div>
-    <br>
+        </div>
 
-    <div>
-        <input type="submit" value="提交保存">
-        <a href="{% url 'staff_list' %}">返回员工列表</a>
-    </div>
-</form>
-</body>
-</html>
+        <!-- 底部按钮 -->
+        <div class="mt-4">
+            <button type="submit" class="btn btn-success">提交保存</button>
+            <a href="{% url 'staff_list' %}" class="btn btn-outline-secondary ms-2">返回员工列表</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

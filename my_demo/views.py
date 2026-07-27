@@ -58,6 +58,6 @@ def staff_list(request):
     if serach_name:
         qs=qs.filter(name__icontains=serach_name)
     if serach_work_area:
-        qs=qs.filter(name__icontains=serach_work_area)
+        qs=qs.filter(work_area__icontains=serach_work_area)
     return render(request,'staff/list.html',{'staff_list':qs})
 
