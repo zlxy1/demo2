@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import check_password
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
-
+from .models import UserProfile
 # Create your views here.
 def login_view(request):
     if request.user.is_authenticated:
@@ -60,7 +60,10 @@ def register(request):
 
 @login_required
 def userinfo(request):
-        return render(request,'account/userinfo.html')
+    user=request.user
+    if not hasattr(user,'profile'):
+        UserProfile.objects.create(user=user)
+    return render(request,'account/userinfo.html')
 
 
 @login_required
@@ -92,5 +95,22 @@ def change_pwd(request):
     # 必须把msg放到上下文字典传给html页面
     return render(request, 'account/change_pwd.html', {'msg': msg})
 
-
+@login_required
+def upload_avatar(request):
+    msg=''
+    if request.method=='POST':
+        avatar=request.FILES.get('avatar')
+        nickname=request.POST.get('nickname')
+        if not avatar:
+            msg='请上传头像'
+        elif not nickname:
+            msg='请输入昵称'
+        else:
+            profile = UserProfile.objects.get(user=request.user)
+            profile.avatar=avatar
+            profile.nickname=nickname
+            profile.save()
+            msg='头像上传成功！'
+            return redirect('userinfo')
+    return render(request,'account/upload.html',{'msg':msg})
 
