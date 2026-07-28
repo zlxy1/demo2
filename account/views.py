@@ -4,6 +4,7 @@ from django.contrib.auth.hashers import check_password
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from .models import UserProfile
+
 # Create your views here.
 def login_view(request):
     if request.user.is_authenticated:
@@ -21,12 +22,8 @@ def login_view(request):
     return render(request,'account/login.html')
 
 def logout_view(request):
-    if request.method == "POST":
-        logout(request)
+    logout(request)
     return redirect('login_view')
-
-from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
 
 def register(request):
     # 已登录用户直接跳转主页，return终止代码
@@ -81,8 +78,8 @@ def change_pwd(request):
             msg = '原密码输入错误'
         elif new_pwd1 != new_pwd2:
             msg = '两次新密码输入不一致'
-        elif len(new_pwd1) <= 6:
-            msg = '密码必须大于6位'
+        elif len(new_pwd1) < 8:
+            msg = '密码长度至少8位'
         else:
             # 修改密码并加密存储
             user = request.user
@@ -92,7 +89,7 @@ def change_pwd(request):
             update_session_auth_hash(request, user)
             msg = '密码修改成功！'
 
-    # 必须把msg放到上下文字典传给html页面
+    # 必须把msg到上下文字典传给html页面
     return render(request, 'account/change_pwd.html', {'msg': msg})
 
 @login_required
@@ -106,11 +103,10 @@ def upload_avatar(request):
         elif not nickname:
             msg='请输入昵称'
         else:
-            profile = UserProfile.objects.get(user=request.user)
+            profile =UserProfile.objects.get(user=request.user)
             profile.avatar=avatar
             profile.nickname=nickname
             profile.save()
             msg='头像上传成功！'
             return redirect('userinfo')
     return render(request,'account/upload.html',{'msg':msg})
-
