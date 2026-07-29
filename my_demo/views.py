@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from . import models
 from .models import Staff, work_status_choices, area_choice
+from django.core.paginator import Paginator
 @login_required
 def staff_add(request):
     if request.method == 'GET':
@@ -52,12 +53,15 @@ def staff_edit(request, pk):
 
 @login_required
 def staff_list(request):
-    qs=Staff.objects.all()
+    qs=Staff.objects.all().order_by('id')
     serach_name=request.GET.get('name','')
     serach_work_area=request.GET.get('work_area','')
     if serach_name:
         qs=qs.filter(name__icontains=serach_name)
     if serach_work_area:
         qs=qs.filter(work_area__icontains=serach_work_area)
-    return render(request,'staff/list.html',{'staff_list':qs})
+    paginator = Paginator(qs, 8)
+    pag_num = request.GET.get('page', 1)
+    page_data = paginator.get_page(pag_num)
+    return render(request,'staff/list.html',{'staff_list':page_data})
 

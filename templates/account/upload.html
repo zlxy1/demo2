@@ -17,7 +17,7 @@
             <div class="text-center mb-4">
                 <img
                     src="{{ user.profile.avatar.url }}"
-                    alt="当前头像"
+                    alt="头像"
                     class="rounded-circle object-fit-cover border border-secondary"
                     style="width: 120px; height: 120px;"
                 >
@@ -29,7 +29,7 @@
                 {% csrf_token %}
 
                 <div class="mb-3">
-                    <label class="form-label">选择新头像图片</label>
+                    <label class="form-label">选择图片</label>
                     <input class="form-control" type="file" name="avatar" accept="image/*">
                 </div>
 
