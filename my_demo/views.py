@@ -1,8 +1,36 @@
+import io
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils.http import content_disposition_header
+from openpyxl.workbook import Workbook
 from . import models
 from .models import Staff, work_status_choices, area_choice
 from django.core.paginator import Paginator
+
+def excel_export(data_list):
+    wb=Workbook()
+    ws=wb.active
+    ws.title='员工信息表'
+    row=['姓名','性别','出生日期','身份证号','人员类型','在职状态','所属科室']
+    ws.append(row)
+    for item in data_list:
+        ws.append([item.name,item.get_gender_display(),item.birth,item.id_number,item.staff_type,item.work_status,item.work_area])
+    buffer=io.BytesIO()
+    wb.save(buffer)
+    buffer.seek(0)
+    wb.close()
+    return buffer
+
+def staff_filter(request,qs):
+    search_name=request.GET.get('name','')
+    search_work_area=request.GET.get('work_area','')
+    if search_name:
+        qs = qs.filter(name__icontains=search_name)
+    if search_work_area:
+        qs = qs.filter(work_area__icontains=search_work_area)
+    return qs
+
 @login_required
 def staff_add(request):
     if request.method == 'GET':
@@ -54,14 +82,17 @@ def staff_edit(request, pk):
 @login_required
 def staff_list(request):
     qs=Staff.objects.all().order_by('id')
-    serach_name=request.GET.get('name','')
-    serach_work_area=request.GET.get('work_area','')
-    if serach_name:
-        qs=qs.filter(name__icontains=serach_name)
-    if serach_work_area:
-        qs=qs.filter(work_area__icontains=serach_work_area)
+    qs=staff_filter(request,qs)
     paginator = Paginator(qs, 8)
     pag_num = request.GET.get('page', 1)
     page_data = paginator.get_page(pag_num)
     return render(request,'staff/list.html',{'staff_list':page_data})
 
+@login_required()
+def staff_export(request):
+    qs = Staff.objects.all().order_by('id')
+    qs = staff_filter(request, qs)
+    buf=excel_export(qs)
+    response=HttpResponse(buf.getvalue(),content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response["Content-Disposition"] = 'attachment; filename="员工信息表.xlsx"'
+    return response

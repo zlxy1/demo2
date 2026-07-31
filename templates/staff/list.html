@@ -7,7 +7,7 @@
         <a href="{% url 'staff_add' %}" class="btn btn-primary shadow-sm">
             <i class="bi bi-plus-circle"></i> 新增人员
         </a>
-        <a href="#" class="btn btn-secondary shadow-sm">人员类型</a>
+        <a href="{% url 'staff_export' %}?{{ request.GET.urlencode }}" class="btn btn-success shadow-sm">导出为excel</a>
     </div>
 
     <!-- 搜索卡片 -->
