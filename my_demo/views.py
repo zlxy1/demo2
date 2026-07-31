@@ -2,10 +2,9 @@ import io
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.utils.http import content_disposition_header
 from openpyxl.workbook import Workbook
 from . import models
-from .models import Staff, work_status_choices, area_choice
+from .models import Staff, work_status_choices, area_choice, staff_type_choice
 from django.core.paginator import Paginator
 
 def excel_export(data_list):
@@ -19,16 +18,18 @@ def excel_export(data_list):
     buffer=io.BytesIO()
     wb.save(buffer)
     buffer.seek(0)
-    wb.close()
     return buffer
 
 def staff_filter(request,qs):
     search_name=request.GET.get('name','')
     search_work_area=request.GET.get('work_area','')
+    search_staff_type=request.GET.get('staff_type','')
     if search_name:
         qs = qs.filter(name__icontains=search_name)
     if search_work_area:
         qs = qs.filter(work_area__icontains=search_work_area)
+    if search_staff_type:
+        qs=qs.filter(staff_type=search_staff_type)
     return qs
 
 @login_required
@@ -86,7 +87,7 @@ def staff_list(request):
     paginator = Paginator(qs, 8)
     pag_num = request.GET.get('page', 1)
     page_data = paginator.get_page(pag_num)
-    return render(request,'staff/list.html',{'staff_list':page_data})
+    return render(request,'staff/list.html',{'staff_list':page_data,'staff_type':staff_type_choice})
 
 @login_required()
 def staff_export(request):

@@ -1,47 +1,61 @@
 {% extends 'layout.html' %}
 {% block content %}
 
-<div class="container py-4">
-    <!-- 顶部操作按钮 -->
-    <div class="d-flex gap-3 mb-4">
-        <a href="{% url 'staff_add' %}" class="btn btn-primary shadow-sm">
-            <i class="bi bi-plus-circle"></i> 新增人员
-        </a>
-        <a href="{% url 'staff_export' %}?{{ request.GET.urlencode }}" class="btn btn-success shadow-sm">导出为excel</a>
-    </div>
-
-    <!-- 搜索卡片 -->
-    <div class="card shadow-sm mb-4">
-        
-        <div class="card-body">
-            <form method="get" class="row g-3 align-items-end">
-                <div class="col-md-3">
-                    <label class="form-label">姓名</label>
-                    <input type="text" name="name" class="form-control" placeholder="请输入姓名"
-                           value="{{ search_name }}">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">所属科室</label>
-                    <input type="text" name="work_area" class="form-control" placeholder="请输入科室"
-                           value="{{ search_work_area }}">
-                </div>
-                <div class="col-auto">
-                    <button type="submit" class="btn btn-success">
-                        <i class="bi bi-search"></i> 查询
-                    </button>
-                    <button type="button" onclick="location.href='{% url 'staff_list' %}'"
-                            class="btn btn-outline-secondary ms-2">重置
-                    </button>
-                </div>
-            </form>
+    <div class="container py-4">
+        <!-- 顶部操作按钮 -->
+        <div class="d-flex gap-3 mb-4">
+            <a href="{% url 'staff_add' %}" class="btn btn-primary shadow-sm">
+                <i class="bi bi-plus-circle"></i> 新增人员
+            </a>
+            <a href="{% url 'staff_export' %}?{{ request.GET.urlencode }}"
+               class="btn btn-success shadow-sm">导出为excel</a>
         </div>
-    </div>
 
-    <!-- 员工表格区域 -->
-    <div class="card shadow-sm">
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped table-hover mb-0">
-                <thead class="table-dark">
+        <!-- 搜索卡片 -->
+        <div class="card shadow-sm mb-4">
+
+            <div class="card-body">
+                <form method="get" class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label">姓名</label>
+                        <input type="text" name="name" class="form-control" placeholder="请输入姓名"
+                               value="{{ search_name }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">所属科室</label>
+                        <input type="text" name="work_area" class="form-control" placeholder="请输入科室"
+                               value="{{ search_work_area }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">人员类型</label>
+                        <select name="staff_type" required onchange="this.form.submit()">
+                            <option value="">全部人员</option>
+                            {% for v,k in staff_type %}
+                                <option value="{{ v }}" {% if request.GET.staff_type == v %}
+                                        selected
+                                {% endif %}>{{ k }}</option>
+                            {% endfor %}
+                        </select>
+
+                    </div>
+
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-search"></i> 查询
+                        </button>
+                        <button type="button" onclick="location.href='{% url 'staff_list' %}'"
+                                class="btn btn-outline-secondary ms-2">重置
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 员工表格区域 -->
+        <div class="card shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover mb-0">
+                    <thead class="table-dark">
                     <tr class="text-center">
                         <th>姓名</th>
                         <th>性别</th>
@@ -52,61 +66,62 @@
                         <th>所属科室</th>
                         <th width="160">操作</th>
                     </tr>
-                </thead>
-                <tbody>
+                    </thead>
+                    <tbody>
                     {% for staff in staff_list %}
-                    <tr class="text-center align-middle">
-                        <td>{{ staff.name }}</td>
-                        <td>{{ staff.get_gender_display }}</td>
-                        <td>{{ staff.birth|date:'Y-m-d' }}</td>
-                        <td>{{ staff.id_number }}</td>
-                        <td>{{ staff.staff_type }}</td>
-                        <td>{{ staff.work_status }}</td>
-                        <td>{{ staff.work_area }}</td>
-                        <td>
-                            <!-- 删除 -->
-                            <form action="{% url 'staff_del' staff.pk %}" method="post" class="d-inline">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('确认删除该员工信息？')">
-                                    删除
-                                </button>
-                            </form>
-                            <!-- 编辑 -->
-                            <a href="{% url 'staff_edit' staff.pk %}" class="btn btn-sm btn-warning ms-1">编辑</a>
-                        </td>
-                    </tr>
+                        <tr class="text-center align-middle">
+                            <td>{{ staff.name }}</td>
+                            <td>{{ staff.get_gender_display }}</td>
+                            <td>{{ staff.birth|date:'Y-m-d' }}</td>
+                            <td>{{ staff.id_number }}</td>
+                            <td>{{ staff.staff_type }}</td>
+                            <td>{{ staff.work_status }}</td>
+                            <td>{{ staff.work_area }}</td>
+                            <td>
+                                <!-- 删除 -->
+                                <form action="{% url 'staff_del' staff.pk %}" method="post" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-danger"
+                                            onclick="return confirm('确认删除该员工信息？')">
+                                        删除
+                                    </button>
+                                </form>
+                                <!-- 编辑 -->
+                                <a href="{% url 'staff_edit' staff.pk %}" class="btn btn-sm btn-warning ms-1">编辑</a>
+                            </td>
+                        </tr>
                     {% empty %}
-                    <tr>
+                        <tr>
                         <td colspan="8" class="text-center py-5 text-muted fs-6">
                             <i class="bi bi-inbox fs-3 d-block mb-2"></i>
                             暂无匹配的员工数据
                         </td>
                     {% endfor %}
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
 
-    <!-- 分页区域 居中美化 -->
-    <div class="d-flex justify-content-center align-items-center gap-3 mt-4">
-        {% if staff_list.has_previous %}
-            <a href="?page={{ staff_list.previous_page_number }}&name={{ search_name }}&work_area={{ search_work_area }}"
-               class="btn btn-outline-primary btn-sm">上一页</a>
-        {% else %}
-            <span class="btn btn-outline-secondary btn-sm disabled">上一页</span>
-        {% endif %}
+        <!-- 分页区域 居中美化 -->
+        <div class="d-flex justify-content-center align-items-center gap-3 mt-4">
+            {% if staff_list.has_previous %}
+                <a href="?page={{ staff_list.previous_page_number }}&name={{ search_name }}&work_area={{ search_work_area }}"
+                   class="btn btn-outline-primary btn-sm">上一页</a>
+            {% else %}
+                <span class="btn btn-outline-secondary btn-sm disabled">上一页</span>
+            {% endif %}
 
-        <span class="px-3 py-1 border rounded bg-light">
+            <span class="px-3 py-1 border rounded bg-light">
             第 {{ staff_list.number }} 页 / 共 {{ staff_list.paginator.num_pages }} 页
         </span>
 
-        {% if staff_list.has_next %}
-            <a href="?page={{ staff_list.next_page_number }}&name={{ search_name }}&work_area={{ search_work_area }}"
-               class="btn btn-outline-primary btn-sm">下一页</a>
-        {% else %}
-            <span class="btn btn-outline-secondary btn-sm disabled">下一页</span>
-        {% endif %}
+            {% if staff_list.has_next %}
+                <a href="?page={{ staff_list.next_page_number }}&name={{ search_name }}&work_area={{ search_work_area }}"
+                   class="btn btn-outline-primary btn-sm">下一页</a>
+            {% else %}
+                <span class="btn btn-outline-secondary btn-sm disabled">下一页</span>
+            {% endif %}
+        </div>
     </div>
-</div>
 
 {% endblock %}
