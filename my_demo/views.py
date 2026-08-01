@@ -1,7 +1,11 @@
 import io
+from io import BytesIO
+
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.template.defaultfilters import length
+from openpyxl.reader.excel import load_workbook
 from openpyxl.workbook import Workbook
 from . import models
 from .models import Staff, work_status_choices, area_choice, staff_type_choice
@@ -19,6 +23,21 @@ def excel_export(data_list):
     wb.save(buffer)
     buffer.seek(0)
     return buffer
+
+def excel_import(file_bytes):
+    wb=load_workbook(BytesIO(file_bytes),read_only=True)
+    ws=wb.active
+    datalist=[]
+    for row in ws.iter_rows(min_row=2,values_only=True):
+        if not any(row):
+            continue
+        name,gender,birth,id_number,staff_type,work_status,work_area=row
+        qs=Staff(name=name,gender=gender,birth=birth,id_number=id_number,staff_type=staff_type,work_status=work_status,work_area=work_area)
+        datalist.append(qs)
+    Staff.objects.bulk_create(datalist)
+    wb.close()
+    msg=f'导入成功，共导入{len(datalist)}条数据'
+    return msg
 
 def staff_filter(request,qs):
     search_name=request.GET.get('name','')
@@ -89,7 +108,7 @@ def staff_list(request):
     page_data = paginator.get_page(pag_num)
     return render(request,'staff/list.html',{'staff_list':page_data,'staff_type':staff_type_choice})
 
-@login_required()
+@login_required
 def staff_export(request):
     qs = Staff.objects.all().order_by('id')
     qs = staff_filter(request, qs)
@@ -97,3 +116,16 @@ def staff_export(request):
     response=HttpResponse(buf.getvalue(),content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     response["Content-Disposition"] = 'attachment; filename="员工信息表.xlsx"'
     return response
+
+@login_required
+def staff_import(request):
+    if request.method=="POST":
+        file=request.FILES.get('excel')
+        if not file:
+            return render(request,'staff/import.html',{'msg':'请选择要上传的数据表文件'})
+        file_bytes=file.read()
+        msg=excel_import(file_bytes)
+        return render(request,'staff/import.html',{'msg':msg})
+    return render(request,'staff/import.html')
+
+

@@ -7,8 +7,11 @@
             <a href="{% url 'staff_add' %}" class="btn btn-primary shadow-sm">
                 <i class="bi bi-plus-circle"></i> 新增人员
             </a>
+            <a href="{% url 'staff_import' %}" class="btn btn-primary shadow-sm">
+                <i class="bi bi-plus-circle"></i> 批量导入
+            </a>
             <a href="{% url 'staff_export' %}?{{ request.GET.urlencode }}"
-               class="btn btn-success shadow-sm">导出为excel</a>
+               class="btn btn-success shadow-sm">导出到excel</a>
         </div>
 
         <!-- 搜索卡片 -->
@@ -18,12 +21,12 @@
                 <form method="get" class="row g-3 align-items-end">
                     <div class="col-md-3">
                         <label class="form-label">姓名</label>
-                        <input type="text" name="name" class="form-control" placeholder="请输入姓名"
+                        <input type="text" name="name" class="form-control" placeholder="请输入姓名进行搜索"
                                value="{{ search_name }}">
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">所属科室</label>
-                        <input type="text" name="work_area" class="form-control" placeholder="请输入科室"
+                        <input type="text" name="work_area" class="form-control" placeholder="请输入科室进行搜索"
                                value="{{ search_work_area }}">
                     </div>
                     <div class="col-md-3">
