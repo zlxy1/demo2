@@ -1,61 +1,50 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <title>员工Excel导入</title>
-    <style>
-        .box {
-            width: 500px;
-            margin: 80px auto;
-            padding: 30px;
-            border: 1px solid #eee;
-            border-radius: 8px;
-        }
-        .tip {
-            padding: 10px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-        }
-        .success {
-            background-color: #e6f7ff;
-            color: #1890ff;
-        }
-        .error {
-            background-color: #fff2f0;
-            color: #f5222d;
-        }
-        input {
-            margin: 15px 0;
-        }
-        button {
-            padding: 8px 22px;
-            cursor: pointer;
-            background: #165DFF;
-            color: white;
-            border: none;
-            border-radius: 4px;
-        }
-    </style>
-</head>
-<body>
-    <div class="box">
-        <h3>批量导入员工信息</h3>
+{% extends 'layout.html' %}
 
-        <!-- 展示后端返回的提示消息 -->
-        {% if msg %}
-            <div class="tip">{{ msg }}</div>
-        {% endif %}
-
-        <!-- 上传表单：post提交，enctype必须加，否则文件传不到后端 -->
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div>
-                <label>选择Excel文件(.xlsx)</label>
-                <br>
-                <input type="file" name="excel" accept=".xlsx" required>
-            </div>
-            <button type="submit">开始导入</button>
-        </form>
+{% block content %}
+<div class="container py-4">
+    <!-- 页面标题+返回按钮行 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0">批量导入员工信息</h4>
+        <a href="{% url 'staff_list' %}" class="btn btn-outline-secondary shadow-sm">
+            <i class="bi bi-arrow-left"></i> 返回员工列表
+        </a>
     </div>
-</body>
-</html>
+
+    <!-- 提示消息弹窗（成功/错误区分） -->
+    {% if msg %}
+    <div class="alert {% if is_success %}alert-success{% else %}alert-danger{% endif %} alert-dismissible fade show shadow-sm mb-4" role="alert">
+        {{ msg }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+
+    <!-- 上传卡片主体 -->
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <!-- 文件上传表单，必须携带文件上传编码属性 -->
+            <form action="" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Excel文件选择输入框 -->
+                <div class="mb-4">
+                    <label class="form-label fw-medium">选择Excel文件</label>
+                    <input class="form-control form-control-lg" type="file" name="excel" accept=".xlsx,.xls" required>
+                    <div class="form-text mt-2">
+                        <i class="bi bi-info-circle"></i> 仅支持 .xlsx / .xls 格式Excel表格，请按照标准模板填写员工数据后上传
+                    </div>
+                </div>
+
+                <!-- 底部操作按钮 -->
+                <div class="d-flex gap-3 pt-2">
+                    <button type="submit" class="btn btn-primary shadow-sm">
+                        <i class="bi bi-upload"></i> 开始导入数据
+                    </button>
+                    <button type="reset" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-counterclockwise"></i> 重置选择
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
