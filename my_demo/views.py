@@ -46,7 +46,7 @@ def staff_filter(request,qs):
     if search_name:
         qs = qs.filter(name__icontains=search_name)
     if search_work_area:
-        qs = qs.filter(work_area__icontains=search_work_area)
+        qs = qs.filter(work_area=search_work_area)
     if search_staff_type:
         qs=qs.filter(staff_type=search_staff_type)
     return qs
@@ -103,10 +103,10 @@ def staff_edit(request, pk):
 def staff_list(request):
     qs=Staff.objects.all().order_by('id')
     qs=staff_filter(request,qs)
-    paginator = Paginator(qs, 8)
+    paginator = Paginator(qs, 10)
     pag_num = request.GET.get('page', 1)
     page_data = paginator.get_page(pag_num)
-    return render(request,'staff/list.html',{'staff_list':page_data,'staff_type':staff_type_choice})
+    return render(request,'staff/list.html',{'staff_list':page_data,'staff_type':staff_type_choice,'work_area':area_choice})
 
 @login_required
 def staff_export(request):
