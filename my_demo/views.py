@@ -1,15 +1,14 @@
 import io
 from io import BytesIO
-
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.template.defaultfilters import length
 from openpyxl.reader.excel import load_workbook
 from openpyxl.workbook import Workbook
 from . import models
 from .models import Staff, work_status_choices, area_choice, staff_type_choice
 from django.core.paginator import Paginator
+from django.contrib import messages
 
 def excel_export(data_list):
     wb=Workbook()
@@ -127,5 +126,29 @@ def staff_import(request):
         msg=excel_import(file_bytes)
         return render(request,'staff/import.html',{'msg':msg})
     return render(request,'staff/import.html')
+
+
+@login_required
+def ids_delete(request):
+    if request.method == "POST":
+        ids_str = request.POST.get('ids', '').strip()
+        # 1. 判断是否为空
+        if not ids_str:
+            messages.error(request, "未勾选任何数据！")
+            return redirect('staff_list')
+
+        # 2. 分割并过滤空字符串（防止出现 ,, 产生空白元素）
+        ids_list = [i.strip() for i in ids_str.split(',') if i.strip()]
+
+        # 3. 防止过滤后数组为空
+        if not ids_list:
+            messages.error(request, "有效数据ID为空！")
+            return redirect('staff_list')
+
+        # 批量删除
+        Staff.objects.filter(id__in=ids_list).delete()
+        messages.success(request, "选中记录删除成功！")
+
+    return redirect('staff_list')
 
 

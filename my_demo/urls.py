@@ -11,5 +11,6 @@ urlpatterns = [
     path('staff/edit/<int:pk>', views.staff_edit, name='staff_edit'),
     path('staff/import', views.staff_import, name='staff_import'),
     path('staff/export', views.staff_export, name='staff_export'),
+    path('staff/ids_delete', views.ids_delete, name='ids_delete'),
 
 ]
