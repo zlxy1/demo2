@@ -3,9 +3,22 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import check_password
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
-from .models import UserProfile
-
+from .models import UserProfile,DEP_CHOICE
+from functools import wraps
+from django.contrib import messages
 # Create your views here.
+
+from django.shortcuts import render
+
+def admin_required(view_func):
+    @wraps(view_func)
+    def wrap(request,*a,**b):
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
+        if not (profile.is_admin or request.user.is_superuser):
+            return render(request, "403.html", status=403)
+        return view_func(request,*a,**b)
+    return wrap
+
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('staff_list')
@@ -34,12 +47,15 @@ def register(request):
     if request.method == "POST":
         # 设置默认空字符串，防止None调用strip报错
         username = request.POST.get('username', "").strip()
+        dep=request.POST.get('dep','')
         password1 = request.POST.get('password1', "")
         password2 = request.POST.get('password2', "")
 
         # 1.优先判断用户名非空
         if not username:
             msg = '用户名为空，无法注册'
+        elif not dep:
+            msg='请选择您所在的科室'
         # 2.校验两次密码是否一致
         elif password1 != password2:
             msg = '两次输入的密码不一致'
@@ -48,18 +64,20 @@ def register(request):
             msg = '用户名已存在！'
         # 全部校验通过，创建普通用户
         else:
-            User.objects.create_user(username=username, password=password1)
+            user=User.objects.create_user(username=username, password=password1 )
+            UserProfile.objects.create(
+                user=user,
+                is_admin=False,  # 注册默认普通用户
+                dep=dep)
             # 跳转登录页，填入路由name别名 login
             return redirect('login_view')
 
     # GET请求 或 校验失败，返回注册页面并携带提示文字
-    return render(request, 'account/register.html', {'msg': msg})
+    return render(request, 'account/register.html', {'msg': msg,'dep':DEP_CHOICE})
 
 @login_required
 def userinfo(request):
-    user=request.user
-    if not hasattr(user,'profile'):
-        UserProfile.objects.create(user=user)
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
     return render(request,'account/userinfo.html')
 
 
@@ -96,8 +114,9 @@ def change_pwd(request):
 def upload_avatar(request):
     msg=''
     if request.method=='POST':
-        avatar=request.FILES.get('avatar')
-        nickname=request.POST.get('nickname')
+        avatar=request.FILES.get('avatar','')
+        nickname=request.POST.get('nickname','')
+        dep=request.POST.get('dep','')
         if not avatar:
             msg='请上传头像'
         elif not nickname:
@@ -106,7 +125,8 @@ def upload_avatar(request):
             profile =UserProfile.objects.get(user=request.user)
             profile.avatar=avatar
             profile.nickname=nickname
+            profile.dep=dep
             profile.save()
             msg='头像上传成功！'
             return redirect('userinfo')
-    return render(request,'account/upload.html',{'msg':msg})
+    return render(request,'account/upload.html',{'msg':msg,'dep':DEP_CHOICE})

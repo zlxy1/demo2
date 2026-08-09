@@ -6,14 +6,14 @@
             <i class="bi bi-plus-circle"></i> 新增人员
         </a>
         <a href="{% url 'staff_import' %}" class="btn btn-primary shadow-sm">
-            <i class="bi bi-upload"></i> 批量导入
+            <i class="bi bi-upload"></i> 批量新增
         </a>
         <button type="button" id="batch_del_btn" class="btn btn-danger shadow-sm">
             <i class="bi bi-trash"></i> 批量删除
         </button>
         <a href="{% url 'staff_export' %}?{{ request.GET.urlencode }}"
            class="btn btn-success shadow-sm">
-            <i class="bi bi-download"></i> 导出到Excel
+            <i class="bi bi-download"></i> 导出到excel
         </a>
     </div>
 

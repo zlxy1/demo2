@@ -9,6 +9,7 @@ from . import models
 from .models import Staff, work_status_choices, area_choice, staff_type_choice
 from django.core.paginator import Paginator
 from django.contrib import messages
+from account.views import admin_required
 
 def excel_export(data_list):
     wb=Workbook()
@@ -51,6 +52,7 @@ def staff_filter(request,qs):
     return qs
 
 @login_required
+@admin_required
 def staff_add(request):
     if request.method == 'GET':
         ctx = {'gender_list': models.gender_choice,
