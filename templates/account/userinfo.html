@@ -21,8 +21,8 @@
                     <p class="mb-3">昵称：{{ request.user.profile.nickname }}</p>
                     <p class="mb-3">所在部门：{{ request.user.profile.dep }}</p>
                     <p class="mb-3">账号类型：
-                        {% if request.user.is_superuser %}
-                            超级管理员
+                        {% if is_admin  %}
+                            管理员
                         {% else %}
                             普通注册用户
                         {% endif %}

@@ -3,40 +3,42 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import check_password
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
-from .models import UserProfile,DEP_CHOICE
+from .models import UserProfile, DEP_CHOICE
 from functools import wraps
-from django.contrib import messages
-# Create your views here.
-
 from django.shortcuts import render
+
 
 def admin_required(view_func):
     @wraps(view_func)
-    def wrap(request,*a,**b):
+    def wrap(request, *a, **b):
         profile, _ = UserProfile.objects.get_or_create(user=request.user)
         if not (profile.is_admin or request.user.is_superuser):
-            return render(request, "403.html", status=403)
-        return view_func(request,*a,**b)
+            return redirect('staff_list')
+        return view_func(request, *a, **b)
+
     return wrap
+
 
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('staff_list')
-    if request.method=='POST':
-        username=request.POST.get('username')
-        password=request.POST.get('password')
-        user=authenticate(request,username=username,password=password)
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
         if user:
-            login(request,user)
+            login(request, user)
             return redirect('staff_list')
         else:
-            msg='用户名或密码错误'
-            return render(request,'account/login.html',{'msg':msg})
-    return render(request,'account/login.html')
+            msg = '用户名或密码错误'
+            return render(request, 'account/login.html', {'msg': msg})
+    return render(request, 'account/login.html')
+
 
 def logout_view(request):
     logout(request)
     return redirect('login_view')
+
 
 def register(request):
     # 已登录用户直接跳转主页，return终止代码
@@ -47,7 +49,7 @@ def register(request):
     if request.method == "POST":
         # 设置默认空字符串，防止None调用strip报错
         username = request.POST.get('username', "").strip()
-        dep=request.POST.get('dep','')
+        dep = request.POST.get('dep', '')
         password1 = request.POST.get('password1', "")
         password2 = request.POST.get('password2', "")
 
@@ -55,7 +57,7 @@ def register(request):
         if not username:
             msg = '用户名为空，无法注册'
         elif not dep:
-            msg='请选择您所在的科室'
+            msg = '请选择您所在的科室'
         # 2.校验两次密码是否一致
         elif password1 != password2:
             msg = '两次输入的密码不一致'
@@ -64,7 +66,7 @@ def register(request):
             msg = '用户名已存在！'
         # 全部校验通过，创建普通用户
         else:
-            user=User.objects.create_user(username=username, password=password1 )
+            user = User.objects.create_user(username=username, password=password1)
             UserProfile.objects.create(
                 user=user,
                 is_admin=False,  # 注册默认普通用户
@@ -73,21 +75,23 @@ def register(request):
             return redirect('login_view')
 
     # GET请求 或 校验失败，返回注册页面并携带提示文字
-    return render(request, 'account/register.html', {'msg': msg,'dep':DEP_CHOICE})
+    return render(request, 'account/register.html', {'msg': msg, 'dep': DEP_CHOICE})
+
 
 @login_required
 def userinfo(request):
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
-    return render(request,'account/userinfo.html')
+    is_admin = profile.is_admin or request.user.is_superuser
+    return render(request, 'account/userinfo.html', {'is_admin': is_admin})
 
 
 @login_required
 def change_pwd(request):
     msg = ''
     if request.method == 'POST':
-        old_pwd = request.POST.get('old_pwd','')
-        new_pwd1 = request.POST.get('new_pwd1','')
-        new_pwd2 = request.POST.get('new_pwd2','')
+        old_pwd = request.POST.get('old_pwd', '')
+        new_pwd1 = request.POST.get('new_pwd1', '')
+        new_pwd2 = request.POST.get('new_pwd2', '')
 
         # 新增：判断输入框不能为空
         if not old_pwd or not new_pwd1 or not new_pwd2:
@@ -112,21 +116,20 @@ def change_pwd(request):
 
 @login_required
 def upload_avatar(request):
-    msg=''
-    if request.method=='POST':
-        avatar=request.FILES.get('avatar','')
-        nickname=request.POST.get('nickname','')
-        dep=request.POST.get('dep','')
+    msg = ''
+    if request.method == 'POST':
+        avatar = request.FILES.get('avatar', '')
+        nickname = request.POST.get('nickname', '')
+        dep = request.POST.get('dep', '')
         if not avatar:
-            msg='请上传头像'
-        elif not nickname:
-            msg='请输入昵称'
+            msg = '请上传头像'
         else:
-            profile =UserProfile.objects.get(user=request.user)
-            profile.avatar=avatar
-            profile.nickname=nickname
-            profile.dep=dep
+            profile = UserProfile.objects.get(user=request.user)
+            profile.avatar = avatar
+            if profile.nickname:
+                profile.nickname = nickname
+            if profile.dep:
+                profile.dep = dep
             profile.save()
-            msg='头像上传成功！'
             return redirect('userinfo')
-    return render(request,'account/upload.html',{'msg':msg,'dep':DEP_CHOICE})
+    return render(request, 'account/upload.html', {'msg': msg, 'dep': DEP_CHOICE})

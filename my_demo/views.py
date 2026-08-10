@@ -10,6 +10,7 @@ from .models import Staff, work_status_choices, area_choice, staff_type_choice
 from django.core.paginator import Paginator
 from django.contrib import messages
 from account.views import admin_required
+from account.models import UserProfile,DEP_CHOICE
 
 def excel_export(data_list):
     wb=Workbook()
@@ -72,6 +73,7 @@ def staff_add(request):
         return redirect('staff_list')
 
 @login_required
+@admin_required
 def staff_del(request, pk):
     staff_del = get_object_or_404(Staff, pk=pk)
     if request.method == "POST":
@@ -79,6 +81,7 @@ def staff_del(request, pk):
         return redirect('staff_list')
 
 @login_required
+@admin_required
 def staff_edit(request, pk):
     staff = get_object_or_404(Staff, pk=pk)
     ctx1 = {'gender_list': models.gender_choice,
@@ -96,20 +99,36 @@ def staff_edit(request, pk):
         staff.id_number = request.POST.get('id_number')
         staff.staff_type = request.POST.get('staff_type')
         staff.work_status = request.POST.get('work_status')
-        staff.work_area = request.POST.get('work_area')
         staff.save()
         return redirect('staff_list')
 
 @login_required
+@login_required
 def staff_list(request):
     qs=Staff.objects.all().order_by('id')
     qs=staff_filter(request,qs)
+
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    is_admin = profile.is_admin or request.user.is_superuser
+    user_dep = profile.dep
+
+    if not is_admin:
+        qs = qs.filter(work_area=user_dep)
+
     paginator = Paginator(qs, 10)
     pag_num = request.GET.get('page', 1)
     page_data = paginator.get_page(pag_num)
-    return render(request,'staff/list.html',{'staff_list':page_data,'staff_type':staff_type_choice,'work_area':area_choice})
+
+    return render(request,'staff/list.html',{
+        'staff_list':page_data,
+        'staff_type':staff_type_choice,
+        'work_area':area_choice,
+        'is_admin': is_admin,
+        'user_dep': user_dep   # 新增传给模板
+    })
 
 @login_required
+@admin_required
 def staff_export(request):
     qs = Staff.objects.all().order_by('id')
     qs = staff_filter(request, qs)
@@ -119,6 +138,7 @@ def staff_export(request):
     return response
 
 @login_required
+@admin_required
 def staff_import(request):
     if request.method=="POST":
         file=request.FILES.get('excel')
@@ -131,6 +151,7 @@ def staff_import(request):
 
 
 @login_required
+@admin_required
 def ids_delete(request):
     if request.method == "POST":
         ids_str = request.POST.get('ids', '').strip()
