@@ -79,8 +79,9 @@ def register(request):
 @login_required
 def userinfo(request):
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
-    is_admin = profile.is_admin or request.user.is_superuser
-    return render(request, 'account/userinfo.html', {'is_admin': is_admin})
+    is_admin = profile.is_admin
+    is_super=request.user.is_superuser
+    return render(request, 'account/userinfo.html', {'is_admin': is_admin,"is_super":is_super})
 
 
 @login_required

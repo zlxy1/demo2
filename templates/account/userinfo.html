@@ -8,11 +8,11 @@
 
                 <!-- 居中圆形大头像 BS样式 -->
                 <div class="text-center mb-4">
-                    <img 
-                        src="{{ request.user.profile.avatar.url }}"
-                        alt="头像"
-                        class="rounded-circle object-fit-cover border border-secondary"
-                        style="width: 120px; height: 120px;"
+                    <img
+                            src="{{ request.user.profile.avatar.url }}"
+                            alt="头像"
+                            class="rounded-circle object-fit-cover border border-secondary"
+                            style="width: 120px; height: 120px;"
                     >
                 </div>
 
@@ -21,7 +21,9 @@
                     <p class="mb-3">昵称：{{ request.user.profile.nickname }}</p>
                     <p class="mb-3">所在部门：{{ request.user.profile.dep }}</p>
                     <p class="mb-3">账号类型：
-                        {% if is_admin  %}
+                        {% if is_super %}
+                            超级管理员
+                        {% elif is_admin %}
                             管理员
                         {% else %}
                             普通注册用户
