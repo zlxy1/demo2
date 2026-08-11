@@ -1,12 +1,31 @@
 {% extends 'layout.html' %}
-
 {% block content %}
-    <div class="row justify-content-center">
-        <div class="col-md-5">
-            <div class="card p-4 mt-3">
-                <h4 class="text-center mb-4">个人信息</h4>
+<style>
+    /* 全局统一主题配色，和列表页面政务蓝保持一致 #0F3460 */
+    .theme-header {
+        color: #0F3460;
+    }
+    .btn-primary {
+        background-color: #0F3460;
+        border-color: #0F3460;
+    }
+    .btn-outline-primary {
+        color: #0F3460;
+        border-color: #0F3460;
+    }
+    .btn-outline-primary:hover {
+        background-color: #0F3460;
+        border-color: #0F3460;
+    }
+</style>
 
-                <!-- 居中圆形大头像 BS样式 -->
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card shadow-sm mt-3">
+            <div class="card-body p-4">
+                <h4 class="text-center mb-4 theme-header">个人信息</h4>
+
+                <!-- 居中圆形大头像 -->
                 <div class="text-center mb-4">
                     <img
                             src="{{ request.user.profile.avatar.url }}"
@@ -34,11 +53,12 @@
                 <hr>
 
                 <div class="mt-3 d-grid gap-2">
-                    <a href="{% url 'change_pwd' %}" class="btn btn-outline-primary">前往修改密码</a>
-                    <a href="{% url 'upload' %}" class="btn btn-outline-primary">修改个人资料</a>
-                    <a href="{% url 'staff_list' %}" class="btn btn-primary">返回员工列表首页</a>
+                    <a href="{% url 'change_pwd' %}" class="btn btn-outline-primary btn-sm">前往修改密码</a>
+                    <a href="{% url 'upload' %}" class="btn btn-outline-primary btn-sm">修改个人资料</a>
+                    <a href="{% url 'staff_list' %}" class="btn btn-primary btn-sm">返回员工列表首页</a>
                 </div>
             </div>
         </div>
     </div>
+</div>
 {% endblock %}

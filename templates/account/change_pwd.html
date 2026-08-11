@@ -1,46 +1,66 @@
 {% extends 'layout.html' %}
-
 {% block content %}
+<style>
+    /* 统一主题政务蓝 #0F3460，全站页面色彩保持一致 */
+    .theme-title {
+        color: #0F3460;
+    }
+    .btn-primary {
+        background-color: #0F3460;
+        border-color: #0F3460;
+    }
+    .btn-outline-primary {
+        color: #0F3460;
+        border-color: #0F3460;
+    }
+    .btn-outline-primary:hover {
+        background-color: #0F3460;
+        border-color: #0F3460;
+    }
+</style>
+
 <div class="row justify-content-center">
     <div class="col-md-5">
-        <div class="card p-4 mt-3">
-            <h4 class="text-center mb-4">修改登录密码</h4>
+        <div class="card shadow-sm mt-3">
+            <div class="card-body p-4">
+                <h4 class="text-center mb-4 theme-title">修改登录密码</h4>
 
-            <!-- 提示消息 -->
-            {% if msg %}
-                {% if msg == "密码修改成功！" %}
-                    <div class="alert alert-success text-center py-2">{{ msg }}</div>
-                {% else %}
-                    <div class="alert alert-danger text-center py-2">{{ msg }}</div>
+                <!-- 提示消息 -->
+                {% if msg %}
+                    {% if msg == "密码修改成功！" %}
+                        <div class="alert alert-success text-center py-2">{{ msg }}</div>
+                    {% else %}
+                        <div class="alert alert-danger text-center py-2">{{ msg }}</div>
+                    {% endif %}
+                    <div class="mb-3"></div>
                 {% endif %}
-                <div class="mb-3"></div>
-            {% endif %}
 
-            <form method="post">
-                {% csrf_token %}
+                <form method="post">
+                    {% csrf_token %}
 
-                <div class="mb-3">
-                    <label class="form-label">原密码</label>
-                    <input type="password" name="old_pwd" class="form-control" required>
+                    <div class="mb-3">
+                        <label class="form-label">原密码</label>
+                        <input type="password" name="old_pwd" class="form-control form-control-sm" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">新密码</label>
+                        <input type="password" name="new_pwd1" class="form-control form-control-sm" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">确认新密码</label>
+                        <input type="password" name="new_pwd2" class="form-control form-control-sm" required>
+                    </div>
+
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary btn-sm w-100">确认修改</button>
+                    </div>
+                </form>
+
+                <div class="text-center mt-3">
+                    <a href="{% url 'userinfo' %}" class="btn btn-outline-secondary btn-sm">返回个人中心</a>
                 </div>
-
-                <div class="mb-3">
-                    <label class="form-label">新密码</label>
-                    <input type="password" name="new_pwd1" class="form-control" required>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">确认新密码</label>
-                    <input type="password" name="new_pwd2" class="form-control" required>
-                </div>
-
-                <div class="mt-3">
-                    <button type="submit" class="btn btn-primary w-100">确认修改</button>
-                </div>
-            </form>
-
-            <div class="text-center mt-3">
-                <a href="{% url 'userinfo' %}" class="text-secondary">返回个人中心</a>
             </div>
         </div>
     </div>
