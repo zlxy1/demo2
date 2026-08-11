@@ -45,9 +45,9 @@
                     <div class="mb-3">
                         <label class="form-label">所在科室</label>
                         <select name="dep" class="form-select">
-                            <option value="" selected>请选择科室</option>
+                            <option value="" >请选择科室</option>
                             {% for v,k in dep %}
-                                <option value="{{ v }}">{{ k }}</option>
+                                <option value="{{ v }}" {% if profile.dep == v %}selected{% endif %}>{{ k }}</option>
                             {% endfor %}
                         </select>
                     </div>

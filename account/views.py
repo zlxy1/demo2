@@ -114,9 +114,11 @@ def change_pwd(request):
     # 必须把msg到上下文字典传给html页面
     return render(request, 'account/change_pwd.html', {'msg': msg})
 
+
 @login_required
 def upload_avatar(request):
     msg = ''
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
     if request.method == 'POST':
         avatar = request.FILES.get('avatar', '')
         nickname = request.POST.get('nickname', '')
@@ -124,12 +126,9 @@ def upload_avatar(request):
         if not avatar:
             msg = '请上传头像'
         else:
-            profile = UserProfile.objects.get(user=request.user)
             profile.avatar = avatar
-            if profile.nickname:
-                profile.nickname = nickname
-            if profile.dep:
-                profile.dep = dep
+            profile.nickname = nickname
+            profile.dep = dep
             profile.save()
             return redirect('userinfo')
-    return render(request, 'account/upload.html', {'msg': msg, 'dep': DEP_CHOICE})
+    return render(request, 'account/upload.html', {'msg': msg, 'dep': DEP_CHOICE,'profile':profile})
