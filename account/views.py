@@ -15,9 +15,7 @@ def admin_required(view_func):
         if not (profile.is_admin or request.user.is_superuser):
             return redirect('staff_list')
         return view_func(request, *a, **b)
-
     return wrap
-
 
 def login_view(request):
     if request.user.is_authenticated:

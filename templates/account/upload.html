@@ -42,15 +42,15 @@
                                 value="{{ request.user.profile.nickname }}"
                         >
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">所在科室</label>
-                        <select name="dep" class="form-select">
-                            <option value="" >请选择科室</option>
-                            {% for v,k in dep %}
-                                <option value="{{ v }}" {% if profile.dep == v %}selected{% endif %}>{{ k }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
+{#                    <div class="mb-3">#}
+{#                        <label class="form-label">所在科室</label>#}
+{#                        <select name="dep" class="form-select">#}
+{#                            <option value="" >请选择科室</option>#}
+{#                            {% for v,k in dep %}#}
+{#                                <option value="{{ v }}" {% if profile.dep == v %}selected{% endif %}>{{ k }}</option>#}
+{#                            {% endfor %}#}
+{#                        </select>#}
+{#                    </div>#}
 
                     <button type="submit" class="btn btn-primary w-100">保存修改</button>
                 </form>

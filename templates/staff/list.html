@@ -1,97 +1,132 @@
 {% extends 'layout.html' %}
 {% block content %}
-    <div class="container py-4">
-        <div class="d-flex gap-3 mb-4 flex-wrap align-items-center">
-            {% if is_admin %}
-                <a href="{% url 'staff_add' %}" class="btn btn-primary shadow-sm">
-                    <i class="bi bi-plus-circle"></i> 新增人员
-                </a>
-                <a href="{% url 'staff_import' %}" class="btn btn-primary shadow-sm">
-                    <i class="bi bi-upload"></i> 批量新增
-                </a>
-                <button type="button" id="batch_del_btn" class="btn btn-danger shadow-sm">
-                    <i class="bi bi-trash"></i> 批量删除
-                </button>
-                <a href="{% url 'staff_export' %}?{{ request.GET.urlencode }}"
-                   class="btn btn-success shadow-sm">
-                    <i class="bi bi-download"></i> 导出到excel
-                </a>
-            {% endif %}
-        </div>
+<style>
+    /* 表格内操作按钮自定义缩小 */
+    .table-action-btn {
+        --bs-btn-padding-y: 0.15rem !important;
+        --bs-btn-padding-x: 0.4rem !important;
+        --bs-btn-font-size: 0.75rem !important;
+    }
+    /* 筛选控件统一高度对齐 */
+    .search-control {
+        min-width: 140px;
+    }
+    /* 表头配色，和系统政务蓝#0F3460统一 */
+    .table-header-blue th {
+        background-color: #0F3460 !important;
+        color: #ffffff !important;
+        border-color: #154277;
+    }
+    /* 弹性布局，推动分页紧贴页面底部 */
+    .page-wrap {
+        display: flex;
+        flex-direction: column;
+        min-height: calc(100vh - 180px);
+    }
+    .table-container {
+        flex: 1;
+    }
+    /* 表格美化，柔和边框，单元格内边距微调 */
+    .table {
+        border-collapse: collapse;
+    }
+    .table > :not(caption) > * > * {
+        border-width: 1px;
+        padding: 0.3rem 0.4rem !important;
+    }
+    /* 身份证文字紧凑显示，禁止自动撑开宽度 */
+    .id-col {
+        font-size: 0.8rem;
+        letter-spacing: -0.2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+<div class="page-wrap">
+    <!-- 【整合一行：功能按钮 + 搜索筛选】 -->
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+        {% if is_admin %}
+            <a href="{% url 'staff_add' %}" class="btn btn-primary btn-sm shadow-sm">
+                <i class="bi bi-plus-circle"></i> 新增人员
+            </a>
+            <a href="{% url 'staff_import' %}" class="btn btn-primary btn-sm shadow-sm">
+                <i class="bi bi-upload"></i> 批量新增
+            </a>
+            <button type="button" id="batch_del_btn" class="btn btn-danger btn-sm shadow-sm">
+                <i class="bi bi-trash"></i> 批量删除
+            </button>
+            <a href="{% url 'staff_export' %}?{{ request.GET.urlencode }}"
+               class="btn btn-success btn-sm shadow-sm">
+                <i class="bi bi-download"></i> 导出excel
+            </a>
+            <span class="vr mx-1 d-none d-md-block"></span>
+        {% endif %}
 
-        <!-- 隐藏表单 用于批量提交（放到页面顶部，脱离table，结构规范） -->
-        <form id="batchForm" method="post" action="{% url 'ids_delete' %}">
-            {% csrf_token %}
-            <input type="hidden" name="ids" id="selected_ids">
-        </form>
-
-        <!-- 搜索区域 -->
-        <div class="card shadow-sm mb-4">
-            <div class="card-body">
-                <form method="get" class="row g-3 align-items-end">
-                    <div class="col-md-3">
-                        <label class="form-label">姓名</label>
-                        <input type="text" name="name" class="form-control" placeholder="请输入姓名进行搜索"
-                               value="{{ search_name }}">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">所在科室</label>
-                        <select name="work_area" onchange="this.form.submit()" class="form-select">
-                            {% if is_admin %}
-                                <option value="">全部科室</option>
-                                {% for v,k in work_area %}
-                                    <option value="{{ v }}"
-                                            {% if request.GET.work_area == v %}selected{% endif %}>{{ k }}</option>
-                                {% endfor %}
-                            {% else %}
-                                <option value="{{ user_dep }}" selected>
-                                    {% for v,k in work_area %}
-                                        {% if v == user_dep %}{{ k }}{% endif %}
-                                    {% endfor %}
-                                </option>
-                            {% endif %}
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">人员类型</label>
-                        <select name="staff_type" onchange="this.form.submit()" class="form-select">
-                            <option value="">全部人员</option>
-                            {% for v,k in staff_type %}
-                                <option value="{{ v }}"
-                                        {% if request.GET.staff_type == v %}selected{% endif %}>{{ k }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-auto">
-                        <button type="submit" class="btn btn-success">
-                            <i class="bi bi-search"></i> 查询
-                        </button>
-                        <button type="button" onclick="location.href='{% url 'staff_list' %}'"
-                                class="btn btn-outline-secondary ms-2">重置
-                        </button>
-                    </div>
-                </form>
+        <form method="get" class="d-flex flex-wrap align-items-center gap-2">
+            <div class="search-control">
+                <input type="text" name="name" class="form-control form-control-sm" placeholder="姓名"
+                       value="{{ search_name }}">
             </div>
-        </div>
+            <div class="search-control">
+                <select name="work_area" onchange="this.form.submit()" class="form-select form-select-sm">
+                    {% if is_admin %}
+                        <option value="">全部科室</option>
+                        {% for v,k in work_area %}
+                            <option value="{{ v }}"
+                                    {% if request.GET.work_area == v %}selected{% endif %}>{{ k }}</option>
+                        {% endfor %}
+                    {% else %}
+                        <option value="{{ user_dep }}" selected>
+                            {% for v,k in work_area %}
+                                {% if v == user_dep %}{{ k }}{% endif %}
+                            {% endfor %}
+                        </option>
+                    {% endif %}
+                </select>
+            </div>
+            <div class="search-control">
+                <select name="staff_type" onchange="this.form.submit()" class="form-select form-select-sm">
+                    <option value="">全部人员</option>
+                    {% for v,k in staff_type %}
+                        <option value="{{ v }}"
+                                {% if request.GET.staff_type == v %}selected{% endif %}>{{ k }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-success btn-sm">
+                <i class="bi bi-search"></i> 查询
+            </button>
+            <button type="button" onclick="location.href='{% url 'staff_list' %}'"
+                    class="btn btn-outline-secondary btn-sm">重置
+            </button>
+        </form>
+    </div>
 
-        <!-- 员工表格 -->
+    <!-- 批量删除隐藏表单 -->
+    <form id="batchForm" method="post" action="{% url 'ids_delete' %}">
+        {% csrf_token %}
+        <input type="hidden" name="ids" id="selected_ids">
+    </form>
+
+    <!-- 数据表格区域 -->
+    <div class="table-container mb-3">
         <div class="card shadow-sm">
             <div class="table-responsive">
-                <table class="table table-bordered table-striped table-hover mb-0">
-                    <thead class="table-dark">
+                <table class="table table-bordered table-striped table-hover mb-0 table-sm">
+                    <thead class="table-header-blue">
                     <tr class="text-center">
-                        <th width="70">
+                        <th width="65">
                             <input type="checkbox" id="checkAll"> 全选
-
                         </th>
-                        <th>姓名</th>
-                        <th>性别</th>
-                        <th>出生日期</th>
-                        <th>身份证号</th>
-                        <th>人员类型</th>
-                        <th>在职状态</th>
-                        <th>所属科室</th>
-                        <th width="160">操作</th>
+                        <th width="85">姓名</th>
+                        <th width="65">性别</th>
+                        <th width="105">出生日期</th>
+                        <th width="155">身份证号</th>
+                        <th width="95">人员类型</th>
+                        <th width="85">在职状态</th>
+                        <th width="120">所属科室</th>
+                        <th width="140">操作</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -103,22 +138,21 @@
                             <td>{{ staff.name }}</td>
                             <td>{{ staff.get_gender_display }}</td>
                             <td>{{ staff.birth|date:'Y-m-d' }}</td>
-                            <td>{{ staff.id_number }}</td>
+                            <td class="id-col" title="{{ staff.id_number }}">{{ staff.id_number }}</td>
                             <td>{{ staff.staff_type }}</td>
                             <td>{{ staff.work_status }}</td>
                             <td>{{ staff.work_area }}</td>
                             <td>
                                 {% if is_admin %}
-                                    <!-- 单行删除表单 -->
                                     <form action="{% url 'staff_del' staff.pk %}" method="post" class="d-inline">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-sm btn-danger"
+                                        <button type="submit" class="btn btn-danger table-action-btn"
                                                 onclick="return confirm('确认删除该员工信息？')">
                                             删除
                                         </button>
                                     </form>
                                     <a href="{% url 'staff_edit' staff.pk %}"
-                                       class="btn btn-sm btn-warning ms-1">编辑</a>
+                                       class="btn btn-warning table-action-btn ms-1">编辑</a>
                                 {% else %}
                                     <span class="text-muted">仅查看</span>
                                 {% endif %}
@@ -126,8 +160,8 @@
                         </tr>
                     {% empty %}
                         <tr>
-                            <td colspan="9" class="text-center py-5 text-muted fs-6">
-                                <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                            <td colspan="9" class="text-center py-4 text-muted">
+                                <i class="bi bi-inbox fs-4 d-block mb-2"></i>
                                 暂无匹配的员工数据
                             </td>
                         </tr>
@@ -136,59 +170,60 @@
                 </table>
             </div>
         </div>
+    </div>
 
-        <!-- 分页 -->
-        <div class="d-flex justify-content-center align-items-center gap-3 mt-4">
-            {% if staff_list.has_previous %}
-                <a href="?page={{ staff_list.previous_page_number }}&{{ request.GET.urlencode }}"
-                   class="btn btn-outline-primary btn-sm">上一页</a>
-            {% else %}
-                <span class="btn btn-outline-secondary btn-sm disabled">上一页</span>
-            {% endif %}
+    <!-- 分页区域：加大上边距，更加靠底部 -->
+    <div class="d-flex justify-content-center align-items-center gap-2 mt-auto pt-4">
+        {% if staff_list.has_previous %}
+            <a href="?page={{ staff_list.previous_page_number }}&{{ request.GET.urlencode }}"
+               class="btn btn-outline-primary btn-sm">上一页</a>
+        {% else %}
+            <span class="btn btn-outline-secondary btn-sm disabled">上一页</span>
+        {% endif %}
 
-            <span class="px-3 py-1 border rounded bg-light">
+        <span class="px-2 py-1 border rounded bg-light small">
             第 {{ staff_list.number }} 页 / 共 {{ staff_list.paginator.num_pages }} 页
         </span>
 
-            {% if staff_list.has_next %}
-                <a href="?page={{ staff_list.next_page_number }}&{{ request.GET.urlencode }}"
-                   class="btn btn-outline-primary btn-sm">下一页</a>
-            {% else %}
-                <span class="btn btn-outline-secondary btn-sm disabled">下一页</span>
-            {% endif %}
-        </div>
+        {% if staff_list.has_next %}
+            <a href="?page={{ staff_list.next_page_number }}&{{ request.GET.urlencode }}"
+               class="btn btn-outline-primary btn-sm">下一页</a>
+        {% else %}
+            <span class="btn btn-outline-secondary btn-sm disabled">下一页</span>
+        {% endif %}
     </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
-    <script>
-        const checkAll = document.getElementById('checkAll');
-        const itemChecks = document.querySelectorAll('.row-check');
+<script>
+    const checkAll = document.getElementById('checkAll');
+    const itemChecks = document.querySelectorAll('.row-check');
 
-        if (checkAll) {
-            checkAll.addEventListener('change', function () {
-                itemChecks.forEach(ck => ck.checked = checkAll.checked);
+    if (checkAll) {
+        checkAll.addEventListener('change', function () {
+            itemChecks.forEach(ck => ck.checked = checkAll.checked);
+        });
+    }
+
+    const batchBtn = document.getElementById('batch_del_btn');
+    if (batchBtn) {
+        batchBtn.onclick = function () {
+            let ids = [];
+            document.querySelectorAll('.row-check:checked').forEach(ck => {
+                ids.push(ck.value);
             });
-        }
 
-        const batchBtn = document.getElementById('batch_del_btn');
-        if (batchBtn) {
-            batchBtn.onclick = function () {
-                let ids = [];
-                document.querySelectorAll('.row-check:checked').forEach(ck => {
-                    ids.push(ck.value);
-                });
-
-                if (ids.length === 0) {
-                    alert('请先勾选需要删除的数据！');
-                    return;
-                }
-                if (!confirm(`确定删除选中 ${ids.length} 条记录，删除后无法恢复？`)) {
-                    return;
-                }
-                document.getElementById('selected_ids').value = ids.join(',');
-                document.getElementById('batchForm').submit();
+            if (ids.length === 0) {
+                alert('请先勾选需要删除的数据！');
+                return;
             }
+            if (!confirm(`确定删除选中 ${ids.length} 条记录，删除后无法恢复？`)) {
+                return;
+            }
+            document.getElementById('selected_ids').value = ids.join(',');
+            document.getElementById('batchForm').submit();
         }
-    </script>
+    }
+</script>
 {% endblock %}

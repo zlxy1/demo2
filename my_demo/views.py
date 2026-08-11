@@ -115,7 +115,7 @@ def staff_list(request):
     if not is_admin:
         qs = qs.filter(work_area=user_dep)
 
-    paginator = Paginator(qs, 10)
+    paginator = Paginator(qs, 15)
     pag_num = request.GET.get('page', 1)
     page_data = paginator.get_page(pag_num)
 
