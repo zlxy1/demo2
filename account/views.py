@@ -1,7 +1,8 @@
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import check_password
-from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from .models import UserProfile, DEP_CHOICE
 from functools import wraps
@@ -17,6 +18,15 @@ def admin_required(view_func):
         return view_func(request, *a, **b)
     return wrap
 
+def superuser_required(view_func):
+    @wraps(view_func)
+    def wrap(request, *args, **kwargs):
+        UserProfile.objects.get_or_create(user=request.user)
+        if not request.user.is_superuser:
+            # 直接渲染403页面，响应状态码403，无跳转
+            return render(request, "403.html", status=403)
+        return view_func(request, *args, **kwargs)
+    return wrap
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('staff_list')
@@ -131,3 +141,35 @@ def upload_avatar(request):
             profile.save()
             return redirect('userinfo')
     return render(request, 'account/upload.html', {'msg': msg, 'dep': DEP_CHOICE,'profile':profile})
+
+@login_required
+@superuser_required
+def user_manage(request):
+    user=User.objects.all().order_by('-id')
+    user_list=[]
+    for e in user:
+        profile,_=UserProfile.objects.get_or_create(user=e)
+        user_list.append({'user_obj':e,'profile':profile})
+    return render(request,'account/user_manage.html',{'data':user_list})
+
+@login_required
+@superuser_required
+def user_edit(request, id):
+    target_user = get_object_or_404(User, id=id)
+    profile, _ = UserProfile.objects.get_or_create(user=target_user)
+
+    if request.method == 'POST':
+        profile.nickname = request.POST.get('nickname', '')
+        profile.dep = request.POST.get('dep', '')
+        profile.is_admin = 1 if request.POST.get("is_admin") else 0
+        reset_password = request.POST.get('password', '')
+        if reset_password:
+            target_user.set_password(reset_password)  # 加密
+            target_user.save()
+            update_session_auth_hash(request, target_user)
+        profile.save()  # ✅一定要保存资料表
+        messages.success(request, '修改成功')
+        return redirect('user_manage')
+    cxt = {'dep': DEP_CHOICE, 'p': profile, 'u': target_user}
+    return render(request, 'account/user_edit.html', cxt)
+

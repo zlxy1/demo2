@@ -1,0 +1,88 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <style>
+        .theme-title {
+            color: #0F3460;
+        }
+
+        .btn-primary {
+            background-color: #0F3460;
+            border-color: #0F3460;
+        }
+
+        .btn-outline-primary {
+            color: #0F3460;
+            border-color: #0F3460;
+        }
+    </style>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0 theme-title">系统账号管理</h4>
+        <div>
+            <a href="" class="btn btn-primary btn-sm shadow-sm">
+                <i class="bi bi-plus-circle"></i> 新增系统用户
+            </a>
+            <a href="{% url 'staff_list' %}" class="btn btn-outline-secondary btn-sm ms-2">返回员工列表</a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover table-sm mb-0">
+                    <thead class="table-header-blue">
+                    <tr class="text-center">
+                        <th>ID</th>
+                        <th>登录账号</th>
+                        <th>昵称</th>
+                        <th>科室</th>
+                        <th>系统权限</th>
+                        <th>账户权限</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in data %}
+                        {% with u=item.user_obj p=item.profile %}
+                            <tr class="text-center align-middle">
+                                <td>{{ u.id }}</td>
+                                <td>{{ u.username }}</td>
+                                <td>{{ p.nickname }}</td>
+                                <td>{{ p.dep }}</td>
+                                <td>
+                                    {% if p.is_admin or u.is_superuser %}
+                                        <span class="text-primary">系统管理员</span>
+                                    {% else %}普通用户{% endif %}
+                                </td>
+                                <td>
+                                    {% if u.is_superuser %}
+                                        <span class="text-danger fw-bold">超级管理员</span>
+                                    {% else %}普通账号{% endif %}
+                                </td>
+                                <td>
+                                    {% if not u.is_superuser %}
+                                        <a href="{% url 'user_edit' u.id %}"
+                                           class="btn btn-warning btn-sm table-action-btn">编辑</a>
+                                        <form action="" method="post" class="d-inline">
+                                            {% csrf_token %}
+                                            <button onclick="return confirm('确认删除该账号？')"
+                                                    class="btn btn-danger btn-sm table-action-btn ms-1">删除
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <span class="text-muted">无法操作自身超级账号</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endwith %}
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">暂无系统账号</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

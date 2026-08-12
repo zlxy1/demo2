@@ -1,0 +1,53 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <style>
+        .theme-title {
+            color: #0F3460;
+        }
+
+        .btn-primary {
+            background-color: #0F3460;
+            border-color: #0F3460;
+        }
+    </style>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0 theme-title">编辑账号：{{ u.username }}</h4>
+        <a href="{% url 'user_manage' %}" class="btn btn-outline-secondary btn-sm">返回账号列表</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">重置密码（留空则不修改）</label>
+                    <input type="password" name="password" class="form-control form-control-sm">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">昵称</label>
+                    <input type="text" name="nickname" class="form-control form-control-sm" value="{{ p.nickname }}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">所属科室</label>
+                    <select name="dep" class="form-select form-select-sm">
+                        <option value="">无科室</option>
+                        {% for k,v in dep %}
+                            <option value="{{ k }}" {% if p.dep == k %}selected{% endif %}>{{ v }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-check mb-3">
+                    <input type="checkbox" class="form-check-input" name="is_admin" id="isAdmin" value="1"
+                           {% if p.is_admin %}checked{% endif %}>
+                    <label class="form-check-label" for="isAdmin">添加管理员权限</label>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary btn-sm">保存修改</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
