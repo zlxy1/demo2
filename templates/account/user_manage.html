@@ -19,7 +19,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 class="mb-0 theme-title">系统账号管理</h4>
         <div>
-            <a href="" class="btn btn-primary btn-sm shadow-sm">
+            <a href="{% url 'user_add' %}" class="btn btn-primary btn-sm shadow-sm">
                 <i class="bi bi-plus-circle"></i> 新增系统用户
             </a>
             <a href="{% url 'staff_list' %}" class="btn btn-outline-secondary btn-sm ms-2">返回员工列表</a>
@@ -29,11 +29,18 @@
     <div class="card shadow-sm">
         <div class="card-body p-4">
             <div class="table-responsive">
+                {% if messages %}
+                    {% for msg in messages %}
+                        <div class="alert alert-{{ msg.tags }} alert-dismissible fade show mb-3" role="alert">
+                            {{ msg }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
                 <table class="table table-bordered table-striped table-hover table-sm mb-0">
                     <thead class="table-header-blue">
                     <tr class="text-center">
-                        <th>ID</th>
-                        <th>登录账号</th>
+                        <th>已注册账号</th>
                         <th>昵称</th>
                         <th>科室</th>
                         <th>系统权限</th>
@@ -45,7 +52,6 @@
                     {% for item in data %}
                         {% with u=item.user_obj p=item.profile %}
                             <tr class="text-center align-middle">
-                                <td>{{ u.id }}</td>
                                 <td>{{ u.username }}</td>
                                 <td>{{ p.nickname }}</td>
                                 <td>{{ p.dep }}</td>
@@ -63,7 +69,7 @@
                                     {% if not u.is_superuser %}
                                         <a href="{% url 'user_edit' u.id %}"
                                            class="btn btn-warning btn-sm table-action-btn">编辑</a>
-                                        <form action="" method="post" class="d-inline">
+                                        <form action="{% url 'user_delete' u.id %}" method="post" class="d-inline">
                                             {% csrf_token %}
                                             <button onclick="return confirm('确认删除该账号？')"
                                                     class="btn btn-danger btn-sm table-action-btn ms-1">删除

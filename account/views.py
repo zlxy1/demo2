@@ -154,8 +154,8 @@ def user_manage(request):
 
 @login_required
 @superuser_required
-def user_edit(request, id):
-    target_user = get_object_or_404(User, id=id)
+def user_edit(request, uid):
+    target_user = get_object_or_404(User, id=uid)
     profile, _ = UserProfile.objects.get_or_create(user=target_user)
 
     if request.method == 'POST':
@@ -173,3 +173,47 @@ def user_edit(request, id):
     cxt = {'dep': DEP_CHOICE, 'p': profile, 'u': target_user}
     return render(request, 'account/user_edit.html', cxt)
 
+@login_required()
+@superuser_required
+def user_delete(request, uid):
+    del_user = get_object_or_404(User, id=uid)
+    # 拦截：禁止删除超级管理员
+    if del_user.is_superuser:
+        messages.error(request, "超级管理员账号不允许删除！")
+        return redirect("user_manage")
+    if request.method == "POST":
+        del_user.delete()
+        messages.success(request, "用户已删除")
+    return redirect("user_manage")
+
+@login_required
+@superuser_required
+def user_add(request):
+    if request.method == "POST":
+        username = request.POST.get("username").strip()
+        pwd = request.POST.get("password")
+        nickname = request.POST.get("nickname", "")
+        dep = request.POST.get("dep", "")
+        set_admin = request.POST.get("is_admin", "")  # 勾选则为管理员
+
+        # 校验用户名重复
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "该用户名已存在")
+            return redirect("user_add")
+
+        # 创建Django内置用户
+        new_user = User.objects.create_user(
+            username=username,
+            password=pwd
+        )
+        # 创建扩展资料
+        UserProfile.objects.create(
+            user=new_user,
+            nickname=nickname,
+            dep=dep,
+            is_admin=True if set_admin else False
+        )
+        messages.success(request, "用户创建成功")
+        return redirect("user_manage")
+
+    return render(request, "account/user_add.html", {"dep_list": DEP_CHOICE})

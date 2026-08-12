@@ -1,0 +1,54 @@
+{% extends 'layout.html' %}
+{% block content %}
+<style>
+    .theme-title {color: #0F3460;}
+    .btn-primary {background-color: #0F3460;border-color: #0F3460;}
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0 theme-title">新增系统用户</h4>
+    <a href="{% url 'user_manage' %}" class="btn btn-outline-secondary btn-sm">返回账号列表</a>
+</div>
+
+{% if messages %}
+    {% for msg in messages %}
+    <div class="alert alert-danger alert-dismissible fade show mb-3">{{ msg }}</div>
+    {% endfor %}
+{% endif %}
+
+<div class="card shadow-sm">
+    <div class="card-body p-4">
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label">登录用户名</label>
+                <input type="text" name="username" class="form-control form-control-sm" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">登录密码</label>
+                <input type="password" name="password" class="form-control form-control-sm" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">昵称</label>
+                <input type="text" name="nickname" class="form-control form-control-sm">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">所属科室</label>
+                <select name="dep" class="form-select form-select-sm">
+                    <option value="">无科室</option>
+                    {% for k,v in dep_list %}
+                    <option value="{{k}}">{{v}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" name="is_admin" id="isAdmin">
+                <label class="form-check-label" for="isAdmin">设为业务管理员（可管理员工）</label>
+            </div>
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary btn-sm">创建用户</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
