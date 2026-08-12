@@ -51,7 +51,7 @@
                 <i class="bi bi-plus-circle"></i> 新增人员
             </a>
             <a href="{% url 'staff_import' %}" class="btn btn-primary btn-sm shadow-sm">
-                <i class="bi bi-upload"></i> 批量新增
+                <i class="bi bi-upload"></i> 批量导入
             </a>
             <button type="button" id="batch_del_btn" class="btn btn-danger btn-sm shadow-sm">
                 <i class="bi bi-trash"></i> 批量删除
@@ -65,7 +65,7 @@
 
         <form method="get" class="d-flex flex-wrap align-items-center gap-2">
             <div class="search-control">
-                <input type="text" name="name" class="form-control form-control-sm" placeholder="姓名"
+                <input type="text" name="name" class="form-control form-control-sm" placeholder="输入姓名进行模糊搜索"
                        value="{{ search_name }}">
             </div>
             <div class="search-control">

@@ -47,7 +47,7 @@ DEP_CHOICE = [
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    avatar = models.ImageField(upload_to='upload/', default='upload/default.png', blank=True)
+    avatar = models.ImageField(upload_to='upload/', default='upload/default.jpg', blank=True)
     nickname = models.CharField(max_length=30, blank=True, default='', verbose_name='昵称')
     is_admin = models.BooleanField(default=False, verbose_name='是否为管理员')
     dep = models.CharField(max_length=20, choices=DEP_CHOICE, blank=True, verbose_name='所属科室')
